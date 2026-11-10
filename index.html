@@ -25,7 +25,7 @@
   <div class="treebar">
     <button class="pill" type="button" id="expand">Expand all</button>
     <button class="pill" type="button" id="collapse">Collapse to branches</button>
-    <span class="note">The tree scrolls sideways on narrow screens.</span>
+    <span class="note">Use the + on a node to open the level below it.</span>
   </div>
 
   <div class="tidy-wrap" id="wrap" tabindex="0" role="region" aria-label="Traditions tree">
@@ -45,7 +45,8 @@
   var SVGNS = "http://www.w3.org/2000/svg";
   var GAPX = 40, GAPY = 10;
   var state = { sel: null, open: {} };
-  D.TRADITIONS.forEach(function (t) { state.open[t.id] = true; });
+  // start with the overview: branches and the level below them; deeper levels open from the node
+  D.TRADITIONS.forEach(function (t) { state.open[t.id] = t.depth < 2; });
   var cards = {}, edges = {}, pos = {};
 
   function el(tag, cls, text) {
