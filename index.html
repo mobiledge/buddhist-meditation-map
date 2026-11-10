@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="A tree of the major branches of Buddhism with their schools, orders and lineages, cross-referenced to the meditation practices of each.">
+<meta name="description" content="A tidy tree of the major branches of Buddhism with their schools, orders and lineages, linked to Wikipedia and to the meditation practices of each.">
 <title>Buddhist Traditions &amp; Schools</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
 <link rel="stylesheet" href="site.css">
 </head>
 <body>
-<div class="page">
+<div class="page wide">
   <nav class="nav" aria-label="Pages">
     <a href="index.html" aria-current="page">Traditions &amp; Schools</a>
     <a href="practices.html">Meditation Practices</a>
@@ -18,24 +18,22 @@
 
   <header>
     <h1>Buddhist Traditions &amp; Schools</h1>
-    <p class="lede">The living branches of Buddhism with their regional traditions, schools, monastic orders and teaching lineages. Click any entry to read about it and to see the meditation practices associated with it.</p>
+    <p class="lede">The living branches of Buddhism, read from left to right: branches, then regional traditions, schools, monastic orders and teaching lineages. Each entry links to its Wikipedia article and to its meditation practices.</p>
     <p class="lede legend">Each entry is labelled with what it is, because the levels are not alike: Theravāda divides into monastic orders that share one doctrine, while Mahāyāna divides into schools with different teachings.</p>
   </header>
 
   <div class="treebar">
     <button class="pill" type="button" id="expand">Expand all</button>
     <button class="pill" type="button" id="collapse">Collapse to branches</button>
+    <span class="note">The tree scrolls sideways on narrow screens.</span>
   </div>
 
-  <main>
-    <section class="board" aria-label="Traditions tree">
-      <ul class="tree" id="tree"></ul>
-    </section>
-    <aside class="panel" id="panel" aria-live="polite"></aside>
-  </main>
+  <div class="tidy-wrap" id="wrap" tabindex="0" role="region" aria-label="Traditions tree">
+    <div class="tidy" id="tidy"><svg id="edges" aria-hidden="true"></svg></div>
+  </div>
 
   <footer>
-    <p>This tree is simplified. It leaves out extinct schools and many smaller lineages, and dates for early figures are traditional. Practice links show where a practice is most characteristic, and many are shared more widely.</p>
+    <p>This tree is simplified. It leaves out extinct schools and many smaller lineages. Vajrayāna is placed inside Mahāyāna, whose goal and philosophy it shares, though it is often listed as a third branch. Practice links show where a practice is most characteristic, and many are shared more widely.</p>
   </footer>
 </div>
 
@@ -44,10 +42,11 @@
 (function () {
   var D = window.BMM, byId = D.byId;
   var $ = function (id) { return document.getElementById(id); };
-  var wide = window.matchMedia && window.matchMedia("(min-width: 861px)").matches;
-  var state = { sel: wide ? "buddhism" : null, open: {} };
+  var SVGNS = "http://www.w3.org/2000/svg";
+  var GAPX = 40, GAPY = 10;
+  var state = { sel: null, open: {} };
   D.TRADITIONS.forEach(function (t) { state.open[t.id] = true; });
-  var rows = {};
+  var cards = {}, edges = {}, pos = {};
 
   function el(tag, cls, text) {
     var e = document.createElement(tag);
@@ -55,190 +54,131 @@
     if (text != null) e.textContent = text;
     return e;
   }
-  function count(id) { return D.practicesFor(id).direct.length; }
 
-  // ----- build the tree once -----
+  // ----- build every card once, in reading order -----
   function build(id) {
-    var t = byId[id], li = el("li");
-    var row = el("div", "row");
-    var tw = el("button", "twist" + (t.children.length ? "" : " leaf"));
-    tw.type = "button"; tw.dataset.twist = id;
-    tw.setAttribute("aria-label", "Show or hide the subdivisions of " + t.name);
-    tw.appendChild(el("span", null, "▶"));
-    if (!t.children.length) { tw.tabIndex = -1; tw.setAttribute("aria-hidden", "true"); }
-    row.appendChild(tw);
+    var t = byId[id];
+    var c = el("article", "tnode " + t.fam + " d" + Math.min(t.depth, 3));
+    c.id = "node-" + id;
+    c.appendChild(el("div", "kind", t.kind));
+    c.appendChild(el("h2", null, t.name));
+    c.appendChild(el("p", null, t.brief));
 
-    var b = el("button", "node " + t.fam + " d" + Math.min(t.depth, 3));
-    b.type = "button"; b.id = "node-" + id; b.dataset.go = id;
-    b.appendChild(el("span", "dot" + (t.depth > 1 ? " hollow" : "")));
-    b.appendChild(el("span", "nm", t.name));
-    var n = count(id);
-    if (n && id !== "buddhism") b.appendChild(el("span", "count", n + (n === 1 ? " practice" : " practices")));
-    b.appendChild(el("span", "kind", t.kind));
-    row.appendChild(b);
-    li.appendChild(row);
-    rows[id] = { li: li, node: b, twist: tw, sub: null };
+    var links = el("div", "links");
+    var w = el("a", null, "Wikipedia ↗");
+    w.href = t.wiki; w.target = "_blank"; w.rel = "noopener";
+    w.setAttribute("aria-label", t.name + " on Wikipedia");
+    links.appendChild(w);
+    var n = D.practicesFor(id).direct.length;
+    var p = el("a", "px", id === "buddhism" ? "All practices →" : n ? n + (n === 1 ? " practice →" : " practices →") : "Practices →");
+    p.href = "practices.html" + (id === "buddhism" ? "" : "#t-" + id);
+    p.setAttribute("aria-label", "Meditation practices of " + t.name);
+    links.appendChild(p);
+    c.appendChild(links);
 
     if (t.children.length) {
-      var ul = el("ul");
-      t.children.forEach(function (c) { ul.appendChild(build(c)); });
-      li.appendChild(ul);
-      rows[id].sub = ul;
+      var tw = el("button", "twist");
+      tw.type = "button"; tw.dataset.twist = id;
+      c.appendChild(tw);
     }
-    return li;
-  }
-  $("tree").appendChild(build("buddhism"));
+    $("tidy").appendChild(c);
+    cards[id] = c;
 
-  // ----- state to view -----
-  function render() {
+    if (t.parent) {
+      var path = document.createElementNS(SVGNS, "path");
+      path.setAttribute("class", t.fam);
+      $("edges").appendChild(path);
+      edges[id] = path;
+    }
+    t.children.forEach(build);
+  }
+  build("buddhism");
+
+  // ----- tidy layout: leaves stack in order, each parent sits at the middle of its children -----
+  function kids(id) { return state.open[id] ? byId[id].children : []; }
+
+  function layout() {
+    var W = cards.buddhism.offsetWidth, h = {}, block = {}, maxDepth = 0;
+    var visible = {};
+    (function mark(id) { visible[id] = true; kids(id).forEach(mark); })("buddhism");
     D.TRADITIONS.forEach(function (t) {
-      var r = rows[t.id];
-      r.node.classList.toggle("sel", state.sel === t.id);
-      r.node.setAttribute("aria-pressed", state.sel === t.id ? "true" : "false");
-      if (r.sub) {
-        r.sub.hidden = !state.open[t.id];
-        r.twist.setAttribute("aria-expanded", state.open[t.id] ? "true" : "false");
+      cards[t.id].hidden = !visible[t.id];
+      if (edges[t.id]) edges[t.id].style.display = visible[t.id] ? "" : "none";
+      var tw = cards[t.id].querySelector(".twist");
+      if (tw) {
+        tw.textContent = state.open[t.id] ? "−" : "+";
+        tw.setAttribute("aria-expanded", state.open[t.id] ? "true" : "false");
+        tw.setAttribute("aria-label", (state.open[t.id] ? "Hide" : "Show") + " the subdivisions of " + t.name);
+      }
+      cards[t.id].classList.toggle("sel", state.sel === t.id);
+    });
+    Object.keys(visible).forEach(function (id) { h[id] = cards[id].offsetHeight; });
+
+    function size(id) {
+      var k = kids(id), total = 0;
+      k.forEach(function (c) { total += size(c) + GAPY; });
+      block[id] = Math.max(h[id], k.length ? total - GAPY : 0);
+      return block[id];
+    }
+    function place(id, depth, top) {
+      var k = kids(id), x = depth * (W + GAPX), y = top;
+      maxDepth = Math.max(maxDepth, depth);
+      if (k.length) {
+        var total = -GAPY;
+        k.forEach(function (c) { total += block[c] + GAPY; });
+        var at = top + (block[id] - total) / 2;
+        k.forEach(function (c) { place(c, depth + 1, at); at += block[c] + GAPY; });
+        var a = pos[k[0]], b = pos[k[k.length - 1]];
+        y = (a.y + a.h / 2 + b.y + b.h / 2) / 2 - h[id] / 2;
+        y = Math.min(Math.max(y, top), top + block[id] - h[id]);
+      }
+      pos[id] = { x: x, y: y, h: h[id] };
+    }
+    var total = size("buddhism");
+    place("buddhism", 0, 0);
+
+    Object.keys(visible).forEach(function (id) {
+      var p = pos[id];
+      cards[id].style.transform = "translate(" + p.x + "px," + Math.round(p.y) + "px)";
+      var par = byId[id].parent;
+      if (par) {
+        var q = pos[par], x1 = q.x + W, y1 = q.y + q.h / 2, x2 = p.x, y2 = p.y + p.h / 2, mx = (x1 + x2) / 2;
+        edges[id].setAttribute("d", "M" + x1 + "," + y1.toFixed(1) + " C" + mx + "," + y1.toFixed(1) + " " + mx + "," + y2.toFixed(1) + " " + x2 + "," + y2.toFixed(1));
       }
     });
-    renderPanel(state.sel ? byId[state.sel] : null);
+    var tidy = $("tidy");
+    tidy.style.height = Math.ceil(total) + "px";
+    tidy.style.width = ((maxDepth + 1) * W + maxDepth * GAPX) + "px";
   }
 
-  function section(p, title) {
-    var s = el("div", "sec");
-    s.appendChild(el("div", "sub", title));
-    p.appendChild(s);
-    return s;
-  }
-  function nodeButton(t, cls) {
-    var b = el("button", cls + " " + t.fam);
-    b.type = "button"; b.dataset.go = t.id;
-    return b;
-  }
-  function practiceLink(entry) {
-    var p = entry.p, a = el("a", "item");
-    a.href = "practices.html#p-" + p.id;
-    a.appendChild(el("span", "go", "→"));
-    a.appendChild(el("b", null, p.name));
-    var st = D.shortTerm(p);
-    if (st) a.appendChild(el("i", "tm2", st));
-    if (entry.techs.length) {
-      a.appendChild(el("span", "why", "Technique: " + entry.techs.map(function (k) { return k.name; }).join(", ")));
-    }
-    return a;
-  }
-
-  function renderPanel(t) {
-    var p = $("panel");
-    p.textContent = "";
-    p.classList.toggle("empty", !t);
-    if (!t) {
-      p.appendChild(el("div", "eyebrow", "Details"));
-      p.appendChild(el("p", null, "Click an entry in the tree to read about it and see its meditation practices."));
-      return;
-    }
-    var top = el("div", "panel-top");
-    top.appendChild(el("div", "eyebrow", t.kind));
-    var x = el("button", "close", "×");
-    x.type = "button"; x.id = "close"; x.setAttribute("aria-label", "Close details");
-    top.appendChild(x);
-    p.appendChild(top);
-
-    var head = el("div", "sec");
-    var anc = D.ancestors(t.id).reverse();
-    if (anc.length) {
-      var cr = el("div", "crumbs");
-      anc.forEach(function (a, i) {
-        if (i) cr.appendChild(el("span", null, "›"));
-        var b = nodeButton(byId[a], "tag");
-        b.textContent = byId[a].name;
-        cr.appendChild(b);
-      });
-      head.appendChild(cr);
-    }
-    head.appendChild(el("h2", null, t.name));
-    if (t.term && D.shortTerm(t)) {
-      var tp = el("p", "term");
-      if (t.lang) tp.appendChild(el("span", "lang", t.lang));
-      tp.appendChild(el("i", null, t.term));
-      head.appendChild(tp);
-    }
-    if (t.gloss) head.appendChild(el("p", "note", t.gloss));
-    if (t.region) head.appendChild(el("p", "note", t.region));
-    p.appendChild(head);
-    p.appendChild(el("p", null, t.desc));
-
-    if (t.children.length) {
-      var s1 = section(p, "Subdivisions"), tags = el("div", "tags");
-      t.children.forEach(function (c) {
-        var b = nodeButton(byId[c], "tag");
-        b.appendChild(el("span", "dot hollow"));
-        b.appendChild(el("span", null, byId[c].name));
-        tags.appendChild(b);
-      });
-      s1.appendChild(tags);
-    }
-
-    var pr = D.practicesFor(t.id);
-    var s2 = section(p, t.id === "buddhism" ? "Practised in every tradition" : "Meditation practices");
-    if (pr.direct.length) {
-      var ul = el("ul", "list");
-      pr.direct.forEach(function (e) { var li = el("li"); li.appendChild(practiceLink(e)); ul.appendChild(li); });
-      s2.appendChild(ul);
-    } else {
-      s2.appendChild(el("p", "note", "No practice on the map is specific to this entry. It follows the practices of the wider tradition below."));
-    }
-    if (pr.shared.length) {
-      var s3 = section(p, "Shared with the wider tradition"), tg = el("div", "tags");
-      pr.shared.forEach(function (e) {
-        var a = el("a", "tag qual", e.p.name);
-        a.href = "practices.html#p-" + e.p.id;
-        tg.appendChild(a);
-      });
-      s3.appendChild(tg);
-    }
-    var all = el("a", "xref", t.id === "buddhism" ? "Open the practices map →" : "Show " + t.name + " on the practices map →");
-    all.href = "practices.html" + (t.id === "buddhism" ? "" : "#t-" + t.id);
-    p.appendChild(all);
-    p.scrollTop = 0;
-  }
-
-  function select(id, scroll) {
+  function select(id) {
     state.sel = id;
-    if (id) D.ancestors(id).forEach(function (a) { state.open[a] = true; });
-    render();
-    try { history.replaceState(null, "", id ? "#" + id : location.pathname + location.search); } catch (e) {}
-    if (id && scroll) {
-      var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      rows[id].node.scrollIntoView({ block: "center", behavior: still ? "auto" : "smooth" });
-    }
+    D.ancestors(id).forEach(function (a) { state.open[a] = true; });
+    layout();
+    var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    cards[id].scrollIntoView({ block: "center", inline: "center", behavior: still ? "auto" : "smooth" });
   }
 
   // ----- events -----
   document.addEventListener("click", function (e) {
     var t = e.target;
     var tw = t.closest("[data-twist]");
-    if (tw) { state.open[tw.dataset.twist] = !state.open[tw.dataset.twist]; render(); return; }
-    var go = t.closest("[data-go]");
-    if (go) {
-      var inTree = !!go.closest("#tree");
-      select(inTree && state.sel === go.dataset.go ? null : go.dataset.go, !inTree);
-      return;
-    }
-    if (t.closest("#close")) { select(null); return; }
-    if (t.closest("#expand")) { D.TRADITIONS.forEach(function (x) { state.open[x.id] = true; }); render(); return; }
-    if (t.closest("#collapse")) {
-      D.TRADITIONS.forEach(function (x) { state.open[x.id] = x.depth < 1; });
-      render();
-    }
+    if (tw) { state.open[tw.dataset.twist] = !state.open[tw.dataset.twist]; layout(); return; }
+    if (t.closest("#expand")) { D.TRADITIONS.forEach(function (x) { state.open[x.id] = true; }); layout(); return; }
+    if (t.closest("#collapse")) { D.TRADITIONS.forEach(function (x) { state.open[x.id] = x.depth < 1; }); layout(); }
   });
 
-  function fromHash(scroll) {
+  // index.html#<tradition id> highlights that entry; this is how the practices page links here
+  function fromHash() {
     var h = decodeURIComponent(location.hash.slice(1));
-    if (h && byId[h] && byId[h].set === "trad") { select(h, scroll); return true; }
+    if (h && byId[h] && byId[h].set === "trad") { select(h); return true; }
     return false;
   }
-  window.addEventListener("hashchange", function () { fromHash(true); });
-  if (!fromHash(true)) render();
+  window.addEventListener("hashchange", fromHash);
+  window.addEventListener("resize", layout);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
+  if (!fromHash()) layout();
+  requestAnimationFrame(function () { requestAnimationFrame(function () { $("tidy").classList.add("ready"); }); });
 })();
 </script>
 </body>

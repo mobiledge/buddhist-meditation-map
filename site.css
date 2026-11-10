@@ -146,30 +146,36 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 24px; al
 .techline b { font-weight: 600; }
 .tile .tags { position: relative; z-index: 1; }
 
-/* ---------- tree (traditions) ---------- */
+/* ---------- tidy tree (traditions) ---------- */
+.page.wide { max-width: 1320px; }
 .treebar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.tree, .tree ul { list-style: none; margin: 0; padding: 0; }
-.tree ul { margin-left: 13px; padding-left: 14px; border-left: 1px solid var(--hair); }
-.tree li { padding-top: 5px; }
-.row { display: flex; align-items: stretch; gap: 2px; min-width: 0; }
+.treebar .note { margin-left: 4px; }
+.tidy-wrap { overflow: auto; padding: 4px 14px 14px 2px; margin-left: -2px; }
+.tidy { position: relative; --w: 220px; }
+.tidy svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.tidy path { fill: none; stroke: color-mix(in srgb, var(--c) 45%, var(--hair)); stroke-width: 1.5; }
+.tnode {
+  position: absolute; left: 0; top: 0; width: var(--w); display: flex; flex-direction: column; gap: 4px;
+  background: var(--surface); border: 1px solid color-mix(in srgb, var(--c) 40%, var(--hair)); border-radius: 9px;
+  padding: 8px 12px 9px; scroll-margin: 60px;
+}
+.tidy.ready .tnode { transition: transform .25s ease, border-color .18s, background .18s; }
+.tnode.d0, .tnode.d1 { border-color: var(--c); border-width: 1.5px; }
+.tnode.sel { border-color: var(--c); background: color-mix(in srgb, var(--c) 14%, var(--surface)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 25%, transparent); }
+.tnode .kind { letter-spacing: .06em; font-size: 10px; color: color-mix(in srgb, var(--c) 70%, var(--muted)); }
+.tnode h2 { margin: 0; font-family: var(--display); font-weight: 700; font-size: 15px; line-height: 1.2; overflow-wrap: anywhere; }
+.tnode.d0 h2, .tnode.d1 h2 { font-size: 18px; letter-spacing: -0.01em; }
+.tnode p { margin: 0; font-size: 12.5px; line-height: 1.4; color: var(--fg); }
+.tnode .links { display: flex; flex-wrap: wrap; gap: 2px 12px; font-size: 12px; margin-top: 1px; }
+.tnode .links a { color: var(--muted); text-decoration: none; white-space: nowrap; }
+.tnode .links a:hover { color: var(--fg); text-decoration: underline; }
+.tnode .links a.px { color: var(--jade); font-weight: 600; }
 .twist {
-  flex: none; width: 26px; border: 0; background: transparent; border-radius: 6px; color: var(--muted);
-  font-size: 11px; line-height: 1; padding: 0;
+  position: absolute; right: -11px; top: 50%; width: 22px; height: 22px; margin-top: -11px; padding: 0;
+  border: 1px solid color-mix(in srgb, var(--c) 55%, var(--hair)); border-radius: 50%; background: var(--surface);
+  color: var(--muted); font-size: 14px; line-height: 1;
 }
-.twist:hover { background: color-mix(in srgb, var(--fg) 8%, transparent); color: var(--fg); }
-.twist[aria-expanded="true"] span { display: inline-block; transform: rotate(90deg); }
-.twist.leaf { visibility: hidden; }
-.node {
-  flex: 1; min-width: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 9px; text-align: left;
-  background: var(--surface); border: 1px solid var(--hair); border-radius: 8px; padding: 6px 11px;
-  transition: border-color .18s, background .18s;
-}
-.node:hover { border-color: var(--muted); }
-.node.sel { border-color: var(--c); background: color-mix(in srgb, var(--c) 13%, var(--surface)); }
-.node .nm { font-weight: 600; overflow-wrap: anywhere; }
-.node.d0 .nm, .node.d1 .nm { font-family: var(--display); font-size: 17px; letter-spacing: -0.01em; }
-.node .kind { margin-left: auto; padding-left: 8px; white-space: nowrap; letter-spacing: .06em; }
-.node .count { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.twist:hover { color: var(--fg); border-color: var(--c); }
 
 /* ---------- detail panel ---------- */
 .panel {
@@ -218,10 +224,8 @@ footer p { margin: 0; }
 }
 @media (max-width: 560px) {
   .frow { grid-template-columns: minmax(0, 1fr); gap: 5px; }
-  .tree ul { margin-left: 8px; padding-left: 8px; }
-  .twist { width: 22px; }
-  .node .kind { display: none; }
+  .tidy { --w: 196px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .tile, .node { transition: none; }
+  .tile, .tnode { transition: none; }
 }
