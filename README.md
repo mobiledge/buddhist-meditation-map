@@ -1,29 +1,45 @@
 # Buddhist Meditation Map
 
-An interactive, single-page guide to 18 Buddhist meditation techniques.
+Two linked, interactive pages about Buddhism: one for its traditions, one for its meditation practices.
 
 **Live site:** https://mobiledge.github.io/buddhist-meditation-map/
 
-Each technique is a tile showing its English name, its Pali term (or the term in its own language where no Pali name exists), a short description, and tags.
+## The two pages
 
-## How it works
+| Page | File | What it shows |
+|---|---|---|
+| [Buddhist Traditions & Schools](https://mobiledge.github.io/buddhist-meditation-map/) | `index.html` | A tree of 41 entries: the branches of Buddhism with their regional traditions, schools, monastic orders and teaching lineages. |
+| [Buddhist Meditation Practices](https://mobiledge.github.io/buddhist-meditation-map/practices.html) | `practices.html` | 17 practices grouped into 6 approaches, each with its techniques, filterable by tradition, quality cultivated and method. |
 
-- **Tags** come in three kinds: tradition or school, the quality the practice cultivates, and the method it uses. Click any tag to highlight the matching techniques and grey out the rest. One tag of each kind can be combined.
-- **Tiles** are sorted from calm (*samatha*) to insight (*vipassanā*). A marker on each tile shows whether the practice is calm-led, insight-led, or works on both together.
-- **Details** open when you click a tile: what the name means and which practices it leads to, builds on, or shares a method with.
+The pages are separate because they are different classification systems: one sorts institutions by descent, the other sorts practices by what they do.
+
+## How they connect
+
+- Selecting an entry in the tree lists the meditation practices associated with it. Each one opens that practice on the practices page.
+- Selecting a practice lists its traditions, and each one opens that entry in the tree.
+- Filtering practices by a tradition also shows the practices shared with the wider tradition it belongs to.
+
+Links between the pages use the URL hash: `index.html#gelug` selects a tree entry, `practices.html#p-koan` selects a practice, and `practices.html#t-chan` filters by a tradition.
 
 ## Classification
 
-| Kind | Tags |
+**Traditions.** Buddhism has two living branches, Theravāda and Mahāyāna. Vajrayāna is shown inside Mahāyāna, because it shares Mahāyāna's goal and philosophy and its own teachers class it that way, though it is often listed as a third branch. Every entry is labelled with its kind (branch, regional tradition, school, monastic order, lineage, movement), since the levels are not alike across branches.
+
+**Practices.** Each practice belongs to one approach and carries three independent sets of tags.
+
+| Set | Values |
 |---|---|
-| Tradition | All branches, Theravada, Mahayana (Zen, Pure Land, Nichiren), Vajrayana |
-| Cultivates | Calm, Insight, Compassion, Devotion, Purification |
+| Approach | Calm meditation, Insight meditation, Calm and insight as one, Cultivating the heart, Recitation and recollection, Tantric practice |
+| Tradition | Any entry in the traditions tree |
+| Cultivates | Mindfulness (*sati*), Concentration (*samādhi*), Wisdom (*paññā*), Compassion (*karuṇā*), Devotion (*saddhā*) |
 | Method | Focused attention, Open awareness, Reflection, Recitation, Visualization |
 
-The calm-to-insight positions and some tradition tags are simplified judgment calls, not official doctrine. Many practices are shared more widely than a few tags can show.
+Both the tree and the practice grouping are simplifications, not official doctrine. Tradition tags show where a practice is most characteristic, and many practices are shared more widely.
 
-## Running it
+## Files
 
-Open `index.html` in a browser. There is no build step and no dependencies apart from two web fonts loaded from Google Fonts, with system fonts as the fallback.
+- `data.js` holds all content: the traditions tree, the approaches, the practices and their techniques. Both pages compute their cross-references from it, so a change made here appears on both.
+- `site.css` holds the shared styles.
+- `index.html` and `practices.html` each hold their own layout and script.
 
-All content and code live in `index.html`. The technique data is the `TRADS`, `OBJS`, `TYPES` and `TECHS` arrays at the top of the script.
+There is no build step. Open `index.html` in a browser. The only outside dependency is two web fonts from Google Fonts, with system fonts as the fallback.

@@ -3,411 +3,51 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="A filterable grid of Buddhist meditation techniques, tagged by tradition, the quality each cultivates, and method, with Pali terms.">
-<title>Buddhist Meditation Map</title>
+<meta name="description" content="A tree of the major branches of Buddhism with their schools, orders and lineages, cross-referenced to the meditation practices of each.">
+<title>Buddhist Traditions &amp; Schools</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
-<style>
-/* Layout: a filter bar of tags, then a grid of technique tiles sorted from calm to insight,
-   with a detail panel beside the grid on wide screens and pinned to the bottom on phones.
-   Tradition colors follow monastic robes: saffron, ink blue, maroon. Objectives are jade, types neutral. */
-:root {
-  --bg: #EDF0ED;
-  --surface: #FAFBF9;
-  --fg: #1B2521;
-  --muted: #5C6964;
-  --hair: #CDD5CF;
-  --thera: #A3610A;
-  --maha: #3A588A;
-  --vajra: #8C2F3E;
-  --jade: #1B7560;
-  --shadow: 0 -6px 24px rgba(20, 35, 30, .14);
-  --display: "Bricolage Grotesque", "Space Grotesk", system-ui, sans-serif;
-  --body: "Instrument Sans", Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #111715; --surface: #19221F; --fg: #E5ECE8; --muted: #97A49E; --hair: #2D3A35;
-    --thera: #E2A446; --maha: #92B0E4; --vajra: #E58796; --jade: #5FC7A9;
-    --shadow: 0 -6px 24px rgba(0, 0, 0, .5);
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #111715; --surface: #19221F; --fg: #E5ECE8; --muted: #97A49E; --hair: #2D3A35;
-  --thera: #E2A446; --maha: #92B0E4; --vajra: #E58796; --jade: #5FC7A9;
-  --shadow: 0 -6px 24px rgba(0, 0, 0, .5);
-  color-scheme: dark;
-}
-
-* { box-sizing: border-box; }
-html { color-scheme: light; }
-body { margin: 0; }
-[hidden] { display: none !important; }
-body {
-  background: var(--bg);
-  color: var(--fg);
-  font-family: var(--body);
-  font-size: 15px;
-  line-height: 1.5;
-  padding-block: 28px 40px;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
-}
-.page { max-width: 1180px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
-
-header { display: flex; flex-direction: column; gap: 6px; }
-h1 {
-  font-family: var(--display); font-weight: 700; font-size: clamp(26px, 4.2vw, 38px);
-  line-height: 1.1; letter-spacing: -0.02em; margin: 0; text-wrap: balance;
-}
-.head-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
-.head-top h1 { min-width: 0; }
-.repo {
-  flex: none; margin-top: 4px; border: 1px solid var(--hair); border-radius: 999px; padding: 3px 11px;
-  font-size: 13px; color: var(--muted); text-decoration: none; white-space: nowrap;
-}
-.repo:hover { color: var(--fg); border-color: var(--muted); }
-.lede { margin: 0; color: var(--muted); max-width: 64ch; }
-.legend { font-size: 13px; }
-
-button { font: inherit; color: inherit; cursor: pointer; }
-:focus-visible { outline: 2px solid var(--jade); outline-offset: 2px; }
-
-.label, .eyebrow, .sub, .lang {
-  font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted);
-}
-
-.thera { --c: var(--thera); } .maha { --c: var(--maha); } .vajra { --c: var(--vajra); }
-.obj { --c: var(--jade); } .type { --c: var(--muted); } .all { --c: var(--fg); }
-.all .dot { background: conic-gradient(var(--thera) 0 33.3%, var(--maha) 0 66.6%, var(--vajra) 0); }
-
-/* ---------- tags ---------- */
-.tags { display: flex; flex-wrap: wrap; gap: 6px; }
-.tag {
-  display: inline-flex; align-items: baseline; gap: 6px; max-width: 100%;
-  border: 1px solid color-mix(in srgb, var(--c) 55%, var(--surface));
-  background: color-mix(in srgb, var(--c) 9%, var(--surface));
-  border-radius: 999px; padding: 2px 10px; font-size: 12.5px; line-height: 1.5; text-align: left;
-}
-.tag:hover { background: color-mix(in srgb, var(--c) 22%, var(--surface)); }
-.tag[aria-pressed="true"] { background: var(--c); border-color: var(--c); color: var(--bg); font-weight: 600; }
-.tag.type { background: transparent; }
-.tag.type[aria-pressed="true"] { background: var(--c); }
-.dot { flex: none; align-self: center; width: 7px; height: 7px; border-radius: 50%; background: var(--c); }
-.dot.hollow { background: transparent; border: 1.5px solid var(--c); }
-.tag[aria-pressed="true"] .dot { background: var(--bg); }
-.tag[aria-pressed="true"] .dot.hollow { background: transparent; border-color: var(--bg); }
-.tt { font-size: 11.5px; color: var(--muted); }
-.tag[aria-pressed="true"] .tt { color: inherit; opacity: .85; font-weight: 400; }
-
-/* ---------- filter bar ---------- */
-.filters { display: flex; flex-direction: column; gap: 10px; }
-.frow { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 10px; align-items: baseline; }
-.status { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; min-height: 30px; font-size: 14px; }
-.status b { font-weight: 600; }
-.clear {
-  border: 1px solid var(--hair); background: var(--surface); border-radius: 999px; padding: 3px 12px; font-size: 13px;
-}
-.clear:hover { border-color: var(--muted); }
-.infos { display: flex; flex-direction: column; gap: 8px; }
-.info {
-  border: 1px solid var(--hair); border-radius: 10px; padding: 10px 12px; font-size: 14px; max-width: 80ch;
-  background: color-mix(in srgb, var(--c) 7%, var(--surface));
-}
-.info .who { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; }
-.info .who b { font-family: var(--display); font-size: 16px; }
-.info p { margin: 2px 0 0; }
-.info .gl { color: var(--muted); font-size: 13px; }
-
-main { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 24px; align-items: start; }
-
-/* ---------- tiles ---------- */
-.board { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
-.sorted { font-size: 13px; color: var(--muted); margin: 0; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
-.tile {
-  position: relative; min-width: 0; display: flex; flex-direction: column; gap: 9px;
-  background: var(--surface); border: 1px solid var(--hair); border-radius: 10px; padding: 13px 14px 14px;
-  transition: opacity .18s, filter .18s, border-color .18s, background .18s;
-}
-.tile:hover { border-color: var(--muted); }
-.tile.dim { opacity: .3; filter: grayscale(1); }
-.tile.rel { border-style: dashed; border-color: var(--jade); }
-.tile.sel { border-color: var(--jade); background: color-mix(in srgb, var(--jade) 9%, var(--surface)); }
-.tile:has(.tile-open:focus-visible) { outline: 2px solid var(--jade); outline-offset: 2px; }
-.tile-head { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
-.tile-open {
-  background: none; border: 0; padding: 0; text-align: left; overflow-wrap: anywhere;
-  font-family: var(--display); font-weight: 700; font-size: 17px; line-height: 1.2; letter-spacing: -0.01em;
-}
-.tile-open::after { content: ""; position: absolute; inset: 0; border-radius: 10px; }
-.tile-open:focus-visible { outline: none; }
-.tm { font-size: 13px; font-style: italic; color: var(--muted); overflow-wrap: anywhere; }
-.tile-desc { margin: 0; font-size: 13.5px; line-height: 1.45; flex: 1; }
-.tile .tags { position: relative; z-index: 1; }
-
-/* calm-to-insight marker */
-.scale { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--muted); }
-.track { position: relative; flex: 1; height: 4px; border-radius: 2px; background: var(--hair); }
-.track i {
-  position: absolute; top: -3px; width: 10px; height: 10px; border-radius: 50%;
-  left: calc(var(--p) * (100% - 10px)); background: var(--jade);
-}
-.tile.family { background: transparent; }
-.tile.family.sel { background: color-mix(in srgb, var(--jade) 9%, var(--bg)); }
-
-/* ---------- detail panel ---------- */
-.panel {
-  position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow: auto;
-  background: var(--surface); border: 1px solid var(--hair); border-radius: 12px;
-  padding: 16px 16px 18px; display: flex; flex-direction: column; gap: 13px; min-width: 0;
-}
-.panel-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-.close {
-  border: 1px solid var(--hair); background: transparent; border-radius: 999px; width: 28px; height: 28px;
-  line-height: 1; font-size: 16px; padding: 0; flex: none;
-}
-.close:hover { border-color: var(--muted); }
-.panel h2 {
-  font-family: var(--display); font-weight: 700; font-size: 22px; line-height: 1.15;
-  letter-spacing: -0.01em; margin: 0; text-wrap: balance;
-}
-.term { color: var(--muted); margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 7px; }
-.panel p { margin: 0; }
-.note { font-size: 13px; color: var(--muted); }
-.sec { display: flex; flex-direction: column; gap: 7px; }
-.rels { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
-.relbtn {
-  display: block; width: 100%; text-align: left; background: transparent;
-  border: 1px solid var(--hair); border-radius: 8px; padding: 7px 10px;
-}
-.relbtn:hover { border-color: var(--jade); }
-.relbtn b { font-weight: 600; }
-.relbtn .kind { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--jade); display: block; }
-.relbtn .why { display: block; font-size: 13px; color: var(--muted); }
-.tm2 { font-size: 13px; color: var(--muted); font-weight: 400; margin-left: 7px; }
-
-footer { color: var(--muted); font-size: 13px; max-width: 75ch; }
-footer p { margin: 0; }
-
-@media (max-width: 860px) {
-  main { grid-template-columns: minmax(0, 1fr); gap: 16px; }
-  .panel {
-    top: auto; bottom: 8px; max-height: 44vh; box-shadow: var(--shadow);
-    padding: 13px 14px 15px; gap: 10px; z-index: 5;
-  }
-  .panel.empty { display: none; }
-  .panel h2 { font-size: 19px; }
-}
-@media (max-width: 560px) {
-  .frow { grid-template-columns: minmax(0, 1fr); gap: 5px; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .tile { transition: none; }
-}
-</style>
+<link rel="stylesheet" href="site.css">
 </head>
 <body>
-
 <div class="page">
+  <nav class="nav" aria-label="Pages">
+    <a href="index.html" aria-current="page">Traditions &amp; Schools</a>
+    <a href="practices.html">Meditation Practices</a>
+    <a class="repo" href="https://github.com/mobiledge/buddhist-meditation-map">GitHub <span aria-hidden="true">&#8599;</span></a>
+  </nav>
+
   <header>
-    <div class="head-top">
-      <h1>Buddhist Meditation Map</h1>
-      <a class="repo" href="https://github.com/mobiledge/buddhist-meditation-map">GitHub <span aria-hidden="true">&#8599;</span></a>
-    </div>
-    <p class="lede">Each tile is a meditation technique. Click any tag to highlight the techniques that share it, and click a tile to see how it connects to other practices.</p>
-    <p class="lede legend">Terms in italics are Pali. Where a practice has no Pali name, the term is in its own language and marked Skt. (Sanskrit), Jp. (Japanese) or Tib. (Tibetan).</p>
+    <h1>Buddhist Traditions &amp; Schools</h1>
+    <p class="lede">The living branches of Buddhism with their regional traditions, schools, monastic orders and teaching lineages. Click any entry to read about it and to see the meditation practices associated with it.</p>
+    <p class="lede legend">Each entry is labelled with what it is, because the levels are not alike: Theravāda divides into monastic orders that share one doctrine, while Mahāyāna divides into schools with different teachings.</p>
   </header>
 
-  <section class="filters" aria-label="Filters">
-    <div class="frow"><span class="label">Tradition</span><div class="tags" id="fTrad"></div></div>
-    <div class="frow"><span class="label">Cultivates</span><div class="tags" id="fObj"></div></div>
-    <div class="frow"><span class="label">Method</span><div class="tags" id="fType"></div></div>
-    <div class="status" id="status" aria-live="polite"></div>
-    <div class="infos" id="infos"></div>
-  </section>
+  <div class="treebar">
+    <button class="pill" type="button" id="expand">Expand all</button>
+    <button class="pill" type="button" id="collapse">Collapse to branches</button>
+  </div>
 
   <main>
-    <section class="board" aria-label="Techniques">
-      <p class="sorted">Sorted from calm (samatha) to insight (vipassanā). The marker on each tile shows which one leads, or whether the practice works on both together.</p>
-      <div class="grid" id="grid"></div>
+    <section class="board" aria-label="Traditions tree">
+      <ul class="tree" id="tree"></ul>
     </section>
     <aside class="panel" id="panel" aria-live="polite"></aside>
   </main>
 
   <footer>
-    <p>The calm-to-insight positions and some tradition tags are simplified judgment calls, not official doctrine. Many practices are shared more widely than a few tags can show, and every practice develops both calm and insight to some degree.</p>
+    <p>This tree is simplified. It leaves out extinct schools and many smaller lineages, and dates for early figures are traditional. Practice links show where a practice is most characteristic, and many are shared more widely.</p>
   </footer>
 </div>
 
+<script src="data.js"></script>
 <script>
 (function () {
-  var TRADS = [
-    { id: "all", name: "All branches", fam: "all", lang: "", term: "", gloss: "",
-      desc: "Practised in Theravada, Mahayana and Vajrayana alike, though each has its own version. Filtering by a single tradition also shows these shared practices." },
-    { id: "thera", name: "Theravada", lang: "Pali", term: "Theravāda", gloss: "Teaching of the elders.", fam: "thera",
-      desc: "The oldest surviving branch, found in Sri Lanka and mainland Southeast Asia. Practice centres on calming the mind and then observing experience directly." },
-    { id: "maha", name: "Mahayana", lang: "Pali", term: "Mahāyāna", gloss: "Great vehicle. The word is the same in Pali and Sanskrit.", fam: "maha",
-      desc: "The largest branch, spread across East Asia. Practice is framed by the bodhisattva ideal of awakening for the sake of all beings. This view includes the practices of its schools: Zen, Pure Land and Nichiren." },
-    { id: "zen", name: "Zen", lang: "Pali", term: "jhāna", gloss: "Meditative absorption. Zen comes from this word by way of Sanskrit dhyāna and Chinese chan.", fam: "maha", school: true,
-      desc: "A Mahayana school built on seated meditation, known as Chan in China and Seon in Korea. Soto Zen stresses just sitting, and Rinzai Zen stresses koans." },
-    { id: "pure", name: "Pure Land", lang: "Sanskrit", term: "Sukhāvatī", gloss: "The land of bliss, Amitabha's Pure Land. It has no Pali name.", fam: "maha", school: true,
-      desc: "A Mahayana school centred on devotion to Amitabha Buddha and rebirth in his Pure Land." },
-    { id: "nich", name: "Nichiren", lang: "", term: "", gloss: "No Pali name. The school is named after its founder, the 13th-century Japanese monk Nichiren.", fam: "maha", school: true,
-      desc: "A Japanese Mahayana school whose central practice is chanting the title of the Lotus Sutra." },
-    { id: "vajra", name: "Vajrayana", lang: "Sanskrit", term: "Vajrayāna", gloss: "Diamond vehicle. A Sanskrit name with no equivalent in the Pali canon.", fam: "vajra",
-      desc: "The branch of Tibet, Bhutan and Mongolia. It keeps the Mahayana goal and adds mantra, visualization and close work with a teacher." }
-  ];
-
-  var OBJS = [
-    { id: "still", name: "Calm", lang: "Pali", term: "samādhi", gloss: "Collectedness, concentration. The quality that samatha practice develops.", desc: "A steady, collected mind that stays where you put it. Most traditions treat it as the base for everything else." },
-    { id: "insight", name: "Insight", lang: "Pali", term: "paññā", gloss: "Wisdom. The quality that vipassanā practice develops.", desc: "Seeing for yourself that experience is impermanent, unsatisfying and without a fixed self. Mahayana describes this as seeing emptiness, and Zen and Tibetan teachers as recognizing the nature of mind." },
-    { id: "comp", name: "Compassion", lang: "Pali", term: "karuṇā", gloss: "Compassion.", desc: "Kindness and care that extend to all beings, not only the people you like." },
-    { id: "devo", name: "Devotion", lang: "Pali", term: "saddhā", gloss: "Faith, confidence.", desc: "Faith in, and reliance on, a Buddha or a teacher as the support for the path." },
-    { id: "trans", name: "Purification", lang: "Pali", term: "visuddhi", gloss: "Purification, the word in the title of the Visuddhimagga, the main Theravada meditation manual.", desc: "Clearing away old habits and obstacles. In Vajrayana this includes replacing the ordinary self-image with an awakened one." }
-  ];
-
-  var TYPES = [
-    { id: "focus", name: "Focused attention" },
-    { id: "open", name: "Open awareness" },
-    { id: "think", name: "Reflection" },
-    { id: "recite", name: "Recitation" },
-    { id: "visual", name: "Visualization" }
-  ];
-
-  // score: 1 = calm leads ... 5 = insight leads. both: the tradition treats calm and insight as one.
-  // rel: [technique id, relationship, reason]
-  var TECHS = [
-    { id: "calm", name: "Calm meditation", lang: "Pali", term: "samatha bhāvanā", gloss: "Cultivation of calm, one of the two core qualities of Buddhist meditation alongside vipassanā.", type: null, family: true, lead: "calm",
-      trads: ["all"], objs: ["still"],
-      desc: "Settling the mind on a single object until it becomes still and concentrated. It is a family of methods more than one technique, and every branch uses it as a foundation.",
-      rel: [["samatha", "Includes", "The most common way to practise it."],
-            ["metta", "Includes", "The kindness phrases work as an object of concentration."],
-            ["mantra", "Includes", "Repeating a phrase steadies the mind."],
-            ["vipassana", "Leads to", "A calm mind is the usual foundation for insight."]] },
-    { id: "samatha", name: "Breath focus", lang: "Pali", term: "ānāpānasati", gloss: "Mindfulness of breathing.", type: "focus", lead: "calm",
-      trads: ["all"], objs: ["still"],
-      desc: "Resting attention on the breath and returning to it each time the mind wanders. It is the shared starting point of all three branches.",
-      rel: [["calm", "Part of", "The most common way calm is practised."],
-            ["walking", "Same method", "The same steady attention, placed on steps."],
-            ["mantra", "Same method", "One object held in mind, a phrase in place of the breath."]] },
-    { id: "mantra", name: "Mantra recitation", lang: "Pali", term: "manta", gloss: "The Pali form of the Sanskrit word mantra.", type: "recite", lead: "calm",
-      trads: ["vajra", "maha"], objs: ["still", "devo"],
-      desc: "Repeating sacred syllables, aloud or silently, often counted on a string of 108 beads.",
-      rel: [["nembutsu", "Same method", "Both repeat a sacred phrase with devotion."],
-            ["deity", "Combines with", "Each visualized figure has its own mantra."],
-            ["ngondro", "Part of", "The preliminaries include 100,000 mantra recitations."],
-            ["calm", "Part of", "Repeating a phrase steadies the mind."]] },
-    { id: "nembutsu", name: "Buddha-name recitation", lang: "Pali", term: "buddhānussati", gloss: "Recollection of the Buddha, the early practice this grew from. Known as nembutsu in Japanese and nianfo in Chinese.", type: "recite", lead: "calm",
-      trads: ["pure"], objs: ["devo", "still"],
-      desc: "Reciting the name of Amitabha Buddha, trusting in his vow to receive those who call on him.",
-      rel: [["mantra", "Same method", "Both repeat a sacred phrase with devotion."],
-            ["sutra", "Same method", "The voice carries the practice."],
-            ["guru", "Same aim", "Both rely on an awakened figure for support."]] },
-    { id: "sutra", name: "Sutra chanting", lang: "Pali", term: "sajjhāya", gloss: "Recitation. A sutra is a sutta in Pali.", type: "recite", lead: "calm",
-      trads: ["maha", "nich"], objs: ["devo", "still"],
-      desc: "Reciting scripture aloud. Nichiren practice centres on chanting the title of the Lotus Sutra.",
-      rel: [["nembutsu", "Same method", "The voice carries the practice."],
-            ["mantra", "Same method", "Repetition steadies the mind."]] },
-    { id: "metta", name: "Loving-kindness", lang: "Pali", term: "mettā bhāvanā", gloss: "Cultivation of loving-kindness.", type: "think", lead: "calm",
-      trads: ["all"], objs: ["comp", "still"],
-      desc: "Silently wishing well to yourself, loved ones, strangers and difficult people, in widening circles. Theravada gives it the most emphasis, and every branch practises it.",
-      rel: [["tonglen", "Same aim", "Both grow compassion by a different route."],
-            ["bodhi", "Same aim", "Mahayana widens the wish into a vow to free all beings."],
-            ["calm", "Part of", "The kindness phrases work as an object of concentration."]] },
-    { id: "ngondro", name: "Preliminary practices", lang: "Tibetan", term: "ngöndro", gloss: "What goes before. A Tibetan practice with no Pali name.", type: "recite", lead: "calm",
-      trads: ["vajra"], objs: ["trans", "devo"],
-      desc: "Four foundational practices, including prostrations and mantra, traditionally done 100,000 times each.",
-      rel: [["guru", "Leads to", "Guru yoga is the last of the four preliminaries."],
-            ["mantra", "Combines with", "One preliminary is a purification mantra."],
-            ["deity", "Leads to", "The preliminaries prepare a student for deity practice."]] },
-    { id: "guru", name: "Guru yoga", lang: "Sanskrit", term: "guruyoga", gloss: "Union with the teacher. It has no Pali name; the Pali word for teacher is garu.", type: "visual", lead: "both",
-      trads: ["vajra"], objs: ["devo", "insight"],
-      desc: "Visualizing your teacher as awakened and merging your mind with theirs.",
-      rel: [["deity", "Same method", "Both visualize an awakened figure and then merge with it."],
-            ["dzog", "Leads to", "Treated as the doorway to recognizing the nature of mind."],
-            ["ngondro", "Part of", "It completes the preliminaries."]] },
-    { id: "tonglen", name: "Giving and taking", lang: "Tibetan", term: "tonglen", gloss: "A Tibetan practice with no Pali name.", type: "visual", lead: "calm",
-      trads: ["vajra"], objs: ["comp", "trans"],
-      desc: "Breathing in the suffering of others and breathing out relief, which reverses the habit of self-protection. A Tibetan practice built on the Mahayana ideal of compassion.",
-      rel: [["metta", "Same aim", "Both grow compassion by a different route."],
-            ["bodhi", "Builds on", "It puts the bodhisattva wish into practice."],
-            ["samatha", "Builds on", "The exchange rides on the breath."]] },
-    { id: "bodhi", name: "Awakening-mind practice", lang: "Sanskrit", term: "bodhicitta", gloss: "The mind set on awakening. A Mahayana term that is not part of the Pali canon.", type: "think", lead: "both",
-      trads: ["maha", "vajra"], objs: ["comp"],
-      desc: "Reflecting on the wish to awaken for the sake of all beings until it becomes a steady motive.",
-      rel: [["tonglen", "Leads to", "Giving and taking acts the wish out, breath by breath."],
-            ["metta", "Same aim", "Loving-kindness is its Theravada counterpart."]] },
-    { id: "walking", name: "Walking meditation", lang: "Pali", term: "caṅkama", gloss: "Walking up and down. Zen calls it kinhin.", type: "focus", lead: "both",
-      trads: ["thera", "zen"], objs: ["still", "insight"],
-      desc: "Slow, deliberate walking with attention on each step.",
-      rel: [["samatha", "Same method", "The same steady attention, placed on steps."],
-            ["noting", "Combines with", "Steps are often noted as lifting, moving, placing."],
-            ["shikan", "Combines with", "Zen alternates sitting periods with walking."]] },
-    { id: "deity", name: "Deity yoga", lang: "Sanskrit", term: "devatāyoga", gloss: "It has no Pali name. Tibetan teachers call it yidam practice.", type: "visual", lead: "both",
-      trads: ["vajra"], objs: ["trans", "insight", "still"],
-      desc: "Visualizing yourself as an awakened figure, then dissolving the image to see that it, and you, are empty of fixed nature.",
-      rel: [["mantra", "Combines with", "Each visualized figure has its own mantra."],
-            ["guru", "Same method", "Both visualize an awakened figure and then merge with it."],
-            ["dzog", "Leads to", "Dissolving the image opens into resting in open awareness."],
-            ["vipassana", "Same aim", "Both end in seeing that the self is not fixed."]] },
-    { id: "shikan", name: "Just sitting", lang: "Japanese", term: "shikantaza", gloss: "Nothing but sitting. A Zen practice with no Pali name.", type: "open", lead: "both", both: true,
-      trads: ["zen"], objs: ["insight", "still"],
-      desc: "Sitting upright in open awareness with no object and nothing to achieve. Soto Zen regards the sitting itself as awakening.",
-      rel: [["dzog", "Same method", "Both rest in open awareness, in different traditions."],
-            ["koan", "Same aim", "The two main roads of Zen."],
-            ["samatha", "Builds on", "Beginners usually start by counting breaths."]] },
-    { id: "dzog", name: "Great Perfection, Great Seal", lang: "", term: "Tib. dzogchen, Skt. mahāmudrā", gloss: "Two closely related Tibetan systems with no Pali names.", type: "open", lead: "both", both: true,
-      trads: ["vajra"], objs: ["insight", "still"],
-      desc: "Resting directly in the natural state of mind after a teacher has pointed it out.",
-      rel: [["shikan", "Same method", "Both rest in open awareness, in different traditions."],
-            ["guru", "Builds on", "Devotion to the teacher is treated as the doorway."],
-            ["ngondro", "Builds on", "The preliminaries are traditionally completed first."]] },
-    { id: "scan", name: "Body scanning", lang: "Pali", term: "vedanānupassanā", gloss: "Contemplation of sensations, as taught by U Ba Khin and S. N. Goenka.", type: "focus", lead: "insight",
-      trads: ["thera"], objs: ["insight", "still"],
-      desc: "Moving attention through the body part by part and watching sensations arise and pass.",
-      rel: [["vipassana", "Part of", "One of the main ways insight is practised."],
-            ["noting", "Same aim", "Two Burmese methods for the same insight."],
-            ["samatha", "Builds on", "Courses begin with days of breath focus."]] },
-    { id: "koan", name: "Koan practice", lang: "Japanese", term: "kōan", gloss: "A public case. A Zen practice with no Pali name.", type: "think", lead: "insight",
-      trads: ["zen"], objs: ["insight"],
-      desc: "Holding a question that reasoning cannot solve, such as the sound of one hand, until ordinary thinking gives way.",
-      rel: [["shikan", "Same aim", "The two main roads of Zen."],
-            ["vipassana", "Same aim", "Insight by sudden breakthrough in place of steady observation."]] },
-    { id: "noting", name: "Noting", lang: "Pali", term: "satipaṭṭhāna", gloss: "Establishing mindfulness. Noting is the Mahasi method of practising it.", type: "open", lead: "insight",
-      trads: ["thera"], objs: ["insight"],
-      desc: "Silently labelling each experience as it appears: thinking, hearing, rising, falling.",
-      rel: [["vipassana", "Part of", "One of the main ways insight is practised."],
-            ["scan", "Same aim", "Two Burmese methods for the same insight."],
-            ["walking", "Combines with", "Steps are often noted as lifting, moving, placing."]] },
-    { id: "vipassana", name: "Insight meditation", lang: "Pali", term: "vipassanā bhāvanā", gloss: "Cultivation of clear seeing.", type: null, family: true, lead: "insight",
-      trads: ["all"], objs: ["insight"],
-      desc: "Observing sensations, thoughts and feelings closely to see that they are impermanent and not self. It is a family of methods, and each branch has its own versions.",
-      rel: [["calm", "Builds on", "A calm mind is the usual foundation for insight."],
-            ["noting", "Includes", "A method for doing it."],
-            ["scan", "Includes", "A method for doing it."],
-            ["koan", "Same aim", "Zen reaches insight through a breakthrough."]] }
-  ];
-
-
-  var byId = {};
-  TRADS.forEach(function (x) { x.kind = "trad"; byId[x.id] = x; });
-  OBJS.forEach(function (x) { x.kind = "obj"; byId[x.id] = x; });
-  TYPES.forEach(function (x) { x.kind = "type"; byId[x.id] = x; });
-  TECHS.forEach(function (x) { x.kind = "tech"; byId[x.id] = x; });
-  var MAHA = ["maha", "zen", "pure", "nich"];
-  var ABBR = { Sanskrit: "Skt.", Japanese: "Jp.", Tibetan: "Tib." };
-  var LEAD = {
-    calm: { p: 0, rank: 0, text: "Calm-led: it mainly steadies and settles the mind." },
-    both: { p: 0.5, rank: 1, text: "Works on calm and insight together." },
-    insight: { p: 1, rank: 2, text: "Insight-led: it mainly investigates experience." }
-  };
-  TECHS.sort(function (a, b) { return LEAD[a.lead].rank - LEAD[b.lead].rank; });
-
-  var wide = window.matchMedia && window.matchMedia("(min-width: 861px)").matches;
-  var state = { trad: null, obj: null, type: null, sel: wide ? "calm" : null };
+  var D = window.BMM, byId = D.byId;
   var $ = function (id) { return document.getElementById(id); };
-  var tiles = {};
+  var wide = window.matchMedia && window.matchMedia("(min-width: 861px)").matches;
+  var state = { sel: wide ? "buddhism" : null, open: {} };
+  D.TRADITIONS.forEach(function (t) { state.open[t.id] = true; });
+  var rows = {};
 
   function el(tag, cls, text) {
     var e = document.createElement(tag);
@@ -415,205 +55,190 @@ footer p { margin: 0; }
     if (text != null) e.textContent = text;
     return e;
   }
-  function strip(x) { return x.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(); }
-  function shortTerm(item) { return (ABBR[item.lang] ? ABBR[item.lang] + " " : "") + item.term; }
+  function count(id) { return D.practicesFor(id).direct.length; }
 
-  function makeTag(item, withTerm) {
-    var b = el("button", "tag " + (item.kind === "trad" ? item.fam : item.kind));
-    b.type = "button";
-    b.dataset.f = item.kind + ":" + item.id;
-    if (item.kind === "trad") b.appendChild(el("span", "dot" + (item.school ? " hollow" : "")));
-    b.appendChild(el("span", null, item.name));
-    if (withTerm && item.term && strip(item.term) !== strip(item.name)) b.appendChild(el("i", "tt", shortTerm(item)));
-    return b;
-  }
+  // ----- build the tree once -----
+  function build(id) {
+    var t = byId[id], li = el("li");
+    var row = el("div", "row");
+    var tw = el("button", "twist" + (t.children.length ? "" : " leaf"));
+    tw.type = "button"; tw.dataset.twist = id;
+    tw.setAttribute("aria-label", "Show or hide the subdivisions of " + t.name);
+    tw.appendChild(el("span", null, "▶"));
+    if (!t.children.length) { tw.tabIndex = -1; tw.setAttribute("aria-hidden", "true"); }
+    row.appendChild(tw);
 
-  function scale(t) {
-    var s = el("div", "scale");
-    s.appendChild(el("span", null, "calm"));
-    var tr = el("span", "track");
-    tr.style.setProperty("--p", LEAD[t.lead].p);
-    tr.appendChild(el("i"));
-    s.appendChild(tr);
-    s.appendChild(el("span", null, "insight"));
-    return s;
-  }
+    var b = el("button", "node " + t.fam + " d" + Math.min(t.depth, 3));
+    b.type = "button"; b.id = "node-" + id; b.dataset.go = id;
+    b.appendChild(el("span", "dot" + (t.depth > 1 ? " hollow" : "")));
+    b.appendChild(el("span", "nm", t.name));
+    var n = count(id);
+    if (n && id !== "buddhism") b.appendChild(el("span", "count", n + (n === 1 ? " practice" : " practices")));
+    b.appendChild(el("span", "kind", t.kind));
+    row.appendChild(b);
+    li.appendChild(row);
+    rows[id] = { li: li, node: b, twist: tw, sub: null };
 
-  // ----- build -----
-  TRADS.forEach(function (t) { $("fTrad").appendChild(makeTag(t, true)); });
-  OBJS.forEach(function (o) { $("fObj").appendChild(makeTag(o, true)); });
-  TYPES.forEach(function (t) { $("fType").appendChild(makeTag(t, false)); });
-
-  TECHS.forEach(function (t) {
-    var tile = el("article", "tile");
-    tile.id = "tile-" + t.id;
-    if (t.family) {
-      tile.classList.add("family");
-      tile.appendChild(el("div", "eyebrow", "Family of methods"));
+    if (t.children.length) {
+      var ul = el("ul");
+      t.children.forEach(function (c) { ul.appendChild(build(c)); });
+      li.appendChild(ul);
+      rows[id].sub = ul;
     }
-    var head = el("div", "tile-head");
-    var open = el("button", "tile-open", t.name);
-    open.type = "button";
-    open.dataset.open = t.id;
-    head.appendChild(open);
-    if (t.term) head.appendChild(el("span", "tm", shortTerm(t)));
-    tile.appendChild(head);
-    tile.appendChild(el("p", "tile-desc", t.desc));
-    tile.appendChild(scale(t));
-    var tags = el("div", "tags");
-    t.trads.forEach(function (x) { tags.appendChild(makeTag(byId[x], false)); });
-    t.objs.forEach(function (x) { tags.appendChild(makeTag(byId[x], false)); });
-    if (t.type) tags.appendChild(makeTag(byId[t.type], false));
-    tile.appendChild(tags);
-    tiles[t.id] = tile;
-    $("grid").appendChild(tile);
-  });
+    return li;
+  }
+  $("tree").appendChild(build("buddhism"));
 
   // ----- state to view -----
-  function matches(t) {
-    if (state.trad) {
-      var fam = state.trad === "all" ? ["all"] : (state.trad === "maha" ? MAHA : [state.trad]).concat("all");
-      if (!t.trads.some(function (x) { return fam.indexOf(x) > -1; })) return false;
-    }
-    if (state.obj && t.objs.indexOf(state.obj) < 0) return false;
-    if (state.type && t.type !== state.type) return false;
-    return true;
-  }
-
   function render() {
-    var sel = state.sel ? byId[state.sel] : null;
-    var rel = {};
-    if (sel) sel.rel.forEach(function (r) { rel[r[0]] = 1; });
-    var shown = 0;
-    TECHS.forEach(function (t) {
-      var ok = matches(t), tile = tiles[t.id];
-      if (ok) shown++;
-      tile.classList.toggle("dim", !ok);
-      tile.classList.toggle("sel", state.sel === t.id);
-      tile.classList.toggle("rel", !!rel[t.id]);
-      tile.querySelector(".tile-open").setAttribute("aria-pressed", state.sel === t.id ? "true" : "false");
-    });
-
-    Array.prototype.forEach.call(document.querySelectorAll("[data-f]"), function (b) {
-      var f = b.dataset.f.split(":");
-      b.setAttribute("aria-pressed", state[f[0]] === f[1] ? "true" : "false");
-    });
-
-    var active = ["trad", "obj", "type"].filter(function (k) { return state[k]; }).map(function (k) { return byId[state[k]]; });
-    var st = $("status");
-    st.textContent = "";
-    if (active.length) {
-      var s = el("span");
-      s.appendChild(el("b", null, shown + " of " + TECHS.length));
-      s.appendChild(document.createTextNode(" techniques match " + active.map(function (x) { return x.name; }).join(" + ")));
-      st.appendChild(s);
-      var c = el("button", "clear", "Clear filters");
-      c.type = "button"; c.id = "clear";
-      st.appendChild(c);
-    } else {
-      st.appendChild(el("span", null, "Showing all " + TECHS.length + " techniques"));
-    }
-
-    var infos = $("infos");
-    infos.textContent = "";
-    active.forEach(function (x) {
-      if (!x.desc) return;
-      var box = el("div", "info " + (x.kind === "trad" ? x.fam : x.kind));
-      var who = el("div", "who");
-      who.appendChild(el("b", null, x.name));
-      if (x.term) {
-        if (x.lang) who.appendChild(el("span", "lang", x.lang));
-        who.appendChild(el("i", null, x.term));
+    D.TRADITIONS.forEach(function (t) {
+      var r = rows[t.id];
+      r.node.classList.toggle("sel", state.sel === t.id);
+      r.node.setAttribute("aria-pressed", state.sel === t.id ? "true" : "false");
+      if (r.sub) {
+        r.sub.hidden = !state.open[t.id];
+        r.twist.setAttribute("aria-expanded", state.open[t.id] ? "true" : "false");
       }
-      box.appendChild(who);
-      box.appendChild(el("p", null, x.desc));
-      if (x.gloss) box.appendChild(el("p", "gl", x.gloss));
-      infos.appendChild(box);
     });
-
-    renderPanel(sel);
+    renderPanel(state.sel ? byId[state.sel] : null);
   }
 
-  function renderPanel(sel) {
+  function section(p, title) {
+    var s = el("div", "sec");
+    s.appendChild(el("div", "sub", title));
+    p.appendChild(s);
+    return s;
+  }
+  function nodeButton(t, cls) {
+    var b = el("button", cls + " " + t.fam);
+    b.type = "button"; b.dataset.go = t.id;
+    return b;
+  }
+  function practiceLink(entry) {
+    var p = entry.p, a = el("a", "item");
+    a.href = "practices.html#p-" + p.id;
+    a.appendChild(el("span", "go", "→"));
+    a.appendChild(el("b", null, p.name));
+    var st = D.shortTerm(p);
+    if (st) a.appendChild(el("i", "tm2", st));
+    if (entry.techs.length) {
+      a.appendChild(el("span", "why", "Technique: " + entry.techs.map(function (k) { return k.name; }).join(", ")));
+    }
+    return a;
+  }
+
+  function renderPanel(t) {
     var p = $("panel");
     p.textContent = "";
-    p.classList.toggle("empty", !sel);
-    if (!sel) {
+    p.classList.toggle("empty", !t);
+    if (!t) {
       p.appendChild(el("div", "eyebrow", "Details"));
-      p.appendChild(el("p", null, "Click a tile to see what the technique's name means and which practices it leads to, builds on or shares a method with."));
+      p.appendChild(el("p", null, "Click an entry in the tree to read about it and see its meditation practices."));
       return;
     }
     var top = el("div", "panel-top");
-    top.appendChild(el("div", "eyebrow", sel.type ? byId[sel.type].name : "Family of methods"));
+    top.appendChild(el("div", "eyebrow", t.kind));
     var x = el("button", "close", "×");
     x.type = "button"; x.id = "close"; x.setAttribute("aria-label", "Close details");
     top.appendChild(x);
     p.appendChild(top);
 
     var head = el("div", "sec");
-    head.appendChild(el("h2", null, sel.name));
-    if (sel.term) {
+    var anc = D.ancestors(t.id).reverse();
+    if (anc.length) {
+      var cr = el("div", "crumbs");
+      anc.forEach(function (a, i) {
+        if (i) cr.appendChild(el("span", null, "›"));
+        var b = nodeButton(byId[a], "tag");
+        b.textContent = byId[a].name;
+        cr.appendChild(b);
+      });
+      head.appendChild(cr);
+    }
+    head.appendChild(el("h2", null, t.name));
+    if (t.term && D.shortTerm(t)) {
       var tp = el("p", "term");
-      if (sel.lang) tp.appendChild(el("span", "lang", sel.lang));
-      tp.appendChild(el("i", null, sel.term));
+      if (t.lang) tp.appendChild(el("span", "lang", t.lang));
+      tp.appendChild(el("i", null, t.term));
       head.appendChild(tp);
     }
-    if (sel.gloss) head.appendChild(el("p", "note", sel.gloss));
+    if (t.gloss) head.appendChild(el("p", "note", t.gloss));
+    if (t.region) head.appendChild(el("p", "note", t.region));
     p.appendChild(head);
+    p.appendChild(el("p", null, t.desc));
 
-    var sc = el("div", "sec");
-    sc.appendChild(scale(sel));
-    sc.appendChild(el("p", "note", LEAD[sel.lead].text + (sel.both ? " This tradition treats the two as one thing, not as separate stages." : "")));
-    p.appendChild(sc);
+    if (t.children.length) {
+      var s1 = section(p, "Subdivisions"), tags = el("div", "tags");
+      t.children.forEach(function (c) {
+        var b = nodeButton(byId[c], "tag");
+        b.appendChild(el("span", "dot hollow"));
+        b.appendChild(el("span", null, byId[c].name));
+        tags.appendChild(b);
+      });
+      s1.appendChild(tags);
+    }
 
-    var s3 = el("div", "sec");
-    s3.appendChild(el("div", "sub", "Related practices"));
-    var ul = el("ul", "rels");
-    sel.rel.forEach(function (r) {
-      var li = el("li"), b = el("button", "relbtn"), other = byId[r[0]];
-      b.type = "button"; b.dataset.go = other.id;
-      b.appendChild(el("span", "kind", r[1]));
-      b.appendChild(el("b", null, other.name));
-      if (other.term) b.appendChild(el("i", "tm2", shortTerm(other)));
-      b.appendChild(el("span", "why", r[2]));
-      li.appendChild(b);
-      ul.appendChild(li);
-    });
-    s3.appendChild(ul);
-    p.appendChild(s3);
-    p.appendChild(el("p", "note", "Related tiles have a dashed outline in the grid."));
+    var pr = D.practicesFor(t.id);
+    var s2 = section(p, t.id === "buddhism" ? "Practised in every tradition" : "Meditation practices");
+    if (pr.direct.length) {
+      var ul = el("ul", "list");
+      pr.direct.forEach(function (e) { var li = el("li"); li.appendChild(practiceLink(e)); ul.appendChild(li); });
+      s2.appendChild(ul);
+    } else {
+      s2.appendChild(el("p", "note", "No practice on the map is specific to this entry. It follows the practices of the wider tradition below."));
+    }
+    if (pr.shared.length) {
+      var s3 = section(p, "Shared with the wider tradition"), tg = el("div", "tags");
+      pr.shared.forEach(function (e) {
+        var a = el("a", "tag qual", e.p.name);
+        a.href = "practices.html#p-" + e.p.id;
+        tg.appendChild(a);
+      });
+      s3.appendChild(tg);
+    }
+    var all = el("a", "xref", t.id === "buddhism" ? "Open the practices map →" : "Show " + t.name + " on the practices map →");
+    all.href = "practices.html" + (t.id === "buddhism" ? "" : "#t-" + t.id);
+    p.appendChild(all);
     p.scrollTop = 0;
+  }
+
+  function select(id, scroll) {
+    state.sel = id;
+    if (id) D.ancestors(id).forEach(function (a) { state.open[a] = true; });
+    render();
+    try { history.replaceState(null, "", id ? "#" + id : location.pathname + location.search); } catch (e) {}
+    if (id && scroll) {
+      var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      rows[id].node.scrollIntoView({ block: "center", behavior: still ? "auto" : "smooth" });
+    }
   }
 
   // ----- events -----
   document.addEventListener("click", function (e) {
     var t = e.target;
-    var f = t.closest("[data-f]");
-    if (f) {
-      var parts = f.dataset.f.split(":");
-      state[parts[0]] = state[parts[0]] === parts[1] ? null : parts[1];
-      render();
-      return;
-    }
-    var open = t.closest("[data-open]");
-    if (open) {
-      state.sel = state.sel === open.dataset.open ? null : open.dataset.open;
-      render();
-      return;
-    }
+    var tw = t.closest("[data-twist]");
+    if (tw) { state.open[tw.dataset.twist] = !state.open[tw.dataset.twist]; render(); return; }
     var go = t.closest("[data-go]");
     if (go) {
-      state.sel = go.dataset.go;
-      render();
-      var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      tiles[state.sel].scrollIntoView({ block: "nearest", behavior: still ? "auto" : "smooth" });
+      var inTree = !!go.closest("#tree");
+      select(inTree && state.sel === go.dataset.go ? null : go.dataset.go, !inTree);
       return;
     }
-    if (t.closest("#clear")) { state.trad = state.obj = state.type = null; render(); return; }
-    if (t.closest("#close")) { state.sel = null; render(); }
+    if (t.closest("#close")) { select(null); return; }
+    if (t.closest("#expand")) { D.TRADITIONS.forEach(function (x) { state.open[x.id] = true; }); render(); return; }
+    if (t.closest("#collapse")) {
+      D.TRADITIONS.forEach(function (x) { state.open[x.id] = x.depth < 1; });
+      render();
+    }
   });
 
-  render();
+  function fromHash(scroll) {
+    var h = decodeURIComponent(location.hash.slice(1));
+    if (h && byId[h] && byId[h].set === "trad") { select(h, scroll); return true; }
+    return false;
+  }
+  window.addEventListener("hashchange", function () { fromHash(true); });
+  if (!fromHash(true)) render();
 })();
 </script>
 </body>
