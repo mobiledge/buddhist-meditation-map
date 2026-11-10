@@ -60,6 +60,13 @@ h1 {
   font-family: var(--display); font-weight: 700; font-size: clamp(26px, 4.2vw, 38px);
   line-height: 1.1; letter-spacing: -0.02em; margin: 0; text-wrap: balance;
 }
+.head-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.head-top h1 { min-width: 0; }
+.repo {
+  flex: none; margin-top: 4px; border: 1px solid var(--hair); border-radius: 999px; padding: 3px 11px;
+  font-size: 13px; color: var(--muted); text-decoration: none; white-space: nowrap;
+}
+.repo:hover { color: var(--fg); border-color: var(--muted); }
 .lede { margin: 0; color: var(--muted); max-width: 64ch; }
 .legend { font-size: 13px; }
 
@@ -204,7 +211,10 @@ footer p { margin: 0; }
 
 <div class="page">
   <header>
-    <h1>Buddhist Meditation Map</h1>
+    <div class="head-top">
+      <h1>Buddhist Meditation Map</h1>
+      <a class="repo" href="https://github.com/mobiledge/buddhist-meditation-map">GitHub <span aria-hidden="true">&#8599;</span></a>
+    </div>
     <p class="lede">Each tile is a meditation technique. Click any tag to highlight the techniques that share it, and click a tile to see how it connects to other practices.</p>
     <p class="lede legend">Terms in italics are Pali. Where a practice has no Pali name, the term is in its own language and marked Skt. (Sanskrit), Jp. (Japanese) or Tib. (Tibetan).</p>
   </header>

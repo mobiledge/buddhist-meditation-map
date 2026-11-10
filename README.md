@@ -2,6 +2,8 @@
 
 An interactive, single-page guide to 18 Buddhist meditation techniques.
 
+**Live site:** https://mobiledge.github.io/buddhist-meditation-map/
+
 Each technique is a tile showing its English name, its Pali term (or the term in its own language where no Pali name exists), a short description, and tags.
 
 ## How it works
