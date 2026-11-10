@@ -8,18 +8,18 @@ Two linked, interactive pages about Buddhism: one for its traditions, one for it
 
 | Page | File | What it shows |
 |---|---|---|
-| [Buddhist Traditions & Schools](https://mobiledge.github.io/buddhist-meditation-map/) | `index.html` | A tidy tree of 41 entries, read left to right: the branches of Buddhism with their regional traditions, schools, monastic orders and teaching lineages. Each node has a one-line description and a link to its Wikipedia article. |
+| [Buddhist Traditions & Schools](https://mobiledge.github.io/buddhist-meditation-map/) | `index.html` | A tidy tree of 41 entries, read left to right: the branches of Buddhism with their regional traditions, schools, monastic orders and teaching lineages. Clicking a node opens a side panel with its description, a link to its Wikipedia article and its meditation practices. |
 | [Buddhist Meditation Practices](https://mobiledge.github.io/buddhist-meditation-map/practices.html) | `practices.html` | 17 practices grouped into 6 approaches, each with its techniques, filterable by tradition, quality cultivated and method. |
 
 The pages are separate because they are different classification systems: one sorts institutions by descent, the other sorts practices by what they do.
 
 ## How they connect
 
-- Every node in the tree has a practices link, which opens the practices page filtered to that tradition.
+- Selecting an entry in the tree lists the meditation practices associated with it. Each one opens that practice on the practices page.
 - Selecting a practice lists its traditions, and each one opens that entry in the tree.
 - Filtering practices by a tradition also shows the practices shared with the wider tradition it belongs to.
 
-Links between the pages use the URL hash: `index.html#gelug` highlights a tree entry, `practices.html#p-koan` selects a practice, and `practices.html#t-chan` filters by a tradition.
+Links between the pages use the URL hash: `index.html#gelug` selects a tree entry, `practices.html#p-koan` selects a practice, and `practices.html#t-chan` filters by a tradition.
 
 ## Classification
 

@@ -147,33 +147,32 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 24px; al
 .tile .tags { position: relative; z-index: 1; }
 
 /* ---------- tidy tree (traditions) ---------- */
-.page.wide { max-width: 1320px; }
+.page.wide { max-width: 1340px; }
 .treebar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .treebar .note { margin-left: 4px; }
-.tidy-wrap { overflow: auto; padding: 4px 14px 14px 2px; margin-left: -2px; }
-.tidy { position: relative; --w: 220px; }
+.tidy-wrap { min-width: 0; overflow: auto; padding: 4px 14px 14px 4px; margin-left: -4px; }
+.tidy { position: relative; --w: 168px; }
 .tidy svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
 .tidy path { fill: none; stroke: color-mix(in srgb, var(--c) 45%, var(--hair)); stroke-width: 1.5; }
-.tnode {
-  position: absolute; left: 0; top: 0; width: var(--w); display: flex; flex-direction: column; gap: 4px;
-  background: var(--surface); border: 1px solid color-mix(in srgb, var(--c) 40%, var(--hair)); border-radius: 9px;
-  padding: 8px 12px 9px; scroll-margin: 60px;
+.tnode { position: absolute; left: 0; top: 0; width: var(--w); }
+.tidy.ready .tnode { transition: transform .25s ease; }
+.pick {
+  width: 100%; display: flex; align-items: baseline; gap: 7px; text-align: left;
+  background: var(--surface); border: 1px solid color-mix(in srgb, var(--c) 40%, var(--hair)); border-radius: 8px;
+  padding: 5px 15px 5px 9px; font-size: 13px; font-weight: 600; line-height: 1.25; scroll-margin: 60px;
+  transition: border-color .18s, background .18s;
 }
-.tidy.ready .tnode { transition: transform .25s ease, border-color .18s, background .18s; }
-.tnode.d0, .tnode.d1 { border-color: var(--c); border-width: 1.5px; }
-.tnode.sel { border-color: var(--c); background: color-mix(in srgb, var(--c) 14%, var(--surface)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 25%, transparent); }
-.tnode .kind { letter-spacing: .06em; font-size: 10px; color: color-mix(in srgb, var(--c) 70%, var(--muted)); }
-.tnode h2 { margin: 0; font-family: var(--display); font-weight: 700; font-size: 15px; line-height: 1.2; overflow-wrap: anywhere; }
-.tnode.d0 h2, .tnode.d1 h2 { font-size: 18px; letter-spacing: -0.01em; }
-.tnode p { margin: 0; font-size: 12.5px; line-height: 1.4; color: var(--fg); }
-.tnode .links { display: flex; flex-wrap: wrap; gap: 2px 12px; font-size: 12px; margin-top: 1px; }
-.tnode .links a { color: var(--muted); text-decoration: none; white-space: nowrap; }
-.tnode .links a:hover { color: var(--fg); text-decoration: underline; }
-.tnode .links a.px { color: var(--jade); font-weight: 600; }
+.pick span:last-child { min-width: 0; overflow-wrap: anywhere; }
+.pick:hover { border-color: var(--c); }
+.tnode.d0 .pick, .tnode.d1 .pick { font-family: var(--display); font-size: 16px; letter-spacing: -0.01em; border-color: var(--c); padding-block: 7px; }
+.tnode.sel .pick {
+  border-color: var(--c); background: color-mix(in srgb, var(--c) 16%, var(--surface));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 25%, transparent);
+}
 .twist {
-  position: absolute; right: -11px; top: 50%; width: 22px; height: 22px; margin-top: -11px; padding: 0;
+  position: absolute; right: -9px; top: 50%; width: 18px; height: 18px; margin-top: -9px; padding: 0;
   border: 1px solid color-mix(in srgb, var(--c) 55%, var(--hair)); border-radius: 50%; background: var(--surface);
-  color: var(--muted); font-size: 14px; line-height: 1;
+  color: var(--muted); font-size: 12px; line-height: 1;
 }
 .twist:hover { color: var(--fg); border-color: var(--c); }
 
@@ -224,8 +223,8 @@ footer p { margin: 0; }
 }
 @media (max-width: 560px) {
   .frow { grid-template-columns: minmax(0, 1fr); gap: 5px; }
-  .tidy { --w: 196px; }
+  .tidy { --w: 150px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .tile, .tnode { transition: none; }
+  .tile, .tnode, .pick, .tidy.ready .tnode { transition: none; }
 }
